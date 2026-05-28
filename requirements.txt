@@ -1,0 +1,6 @@
+fastapi
+supabase
+PyJWT
+bcrypt
+pydantic[email]
+httpx
