@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1f8040" />
+  <title>DoaStock – Gestão de Inventário e Doações</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════════════
+     LOGIN
+════════════════════════════════════════════ -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+        </div>
+        <div class="login-logo-text">
+          <h1>DoaStock</h1>
+          <p>Gestão Social de Inventário</p>
+        </div>
+      </div>
+
+      <div id="login-error" class="alert alert-destructive hidden">
+        <div class="alert-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="15" y1="9" x2="9" y2="15" />
+            <line x1="9" y1="9" x2="15" y2="15" />
+          </svg>
+        </div>
+        <div>
+          <div class="alert-title">Erro de autenticação</div>
+          <div class="alert-desc" id="login-error-msg">Credenciais inválidas.</div>
+        </div>
+      </div>
+
+      <h2 class="login-title">Bem-vindo de volta</h2>
+      <p class="login-subtitle">Acesse o painel da sua organização</p>
+
+      <div class="form-group">
+        <label class="form-label" for="login-email">E-mail</label>
+        <input id="login-email" type="email" class="form-input" placeholder="coordenador@ong.org.br"
+          autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="login-password">Senha</label>
+        <input id="login-password" type="password" class="form-input" placeholder="••••••••"
+          autocomplete="current-password" />
+      </div>
+      <button class="btn btn-primary btn-full btn-lg" id="btn-login">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" />
+          <polyline points="10 17 15 12 10 7" />
+          <line x1="15" y1="12" x2="3" y2="12" />
+        </svg>
+        Entrar
+      </button>
+      <p class="text-sm text-muted mt-4" style="text-align:center">
+        Doador?
+        <a href="#" id="link-public" style="color:var(--primary);font-weight:500">Ver necessidades em tempo real →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+     MÓDULO PÚBLICO – sem login
+════════════════════════════════════════════ -->
+  <div id="public-view" class="hidden">
+    <div class="public-header">
+      <div class="public-brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg>
+        DoaStock
+      </div>
+      <button class="btn btn-ghost" id="btn-back-login" style="color:rgba(255,255,255,0.7)">← Acessar sistema</button>
+    </div>
+
+    <div class="public-hero">
+      <h1 id="public-org-name">Banco de Alimentos Esperança</h1>
+      <p>Itens mais necessários agora — sua doação faz diferença direta</p>
+      <p style="font-size:12px;opacity:0.6;margin-top:8px" id="public-updated">Atualizado em tempo real</p>
+    </div>
+
+    <div class="public-content">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="card-title">🚨 Itens em situação crítica</h2>
+          <p class="card-desc text-sm">Necessidades urgentes da semana</p>
+        </div>
+      </div>
+      <div class="needs-grid" id="public-needs-grid">
+        <div class="empty-state">
+          <p>Carregando necessidades...</p>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Como contribuir</div>
+            <div class="card-desc">Informações de entrega</div>
+          </div>
+        </div>
+        <div class="card-body" id="public-how-to-donate">
+          <p class="text-sm text-muted">Carregando informações...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+     APP SHELL – autenticado
+════════════════════════════════════════════ -->
+  <div id="app-shell" class="hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <div class="sidebar-brand-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+          </div>
+          <div>
+            <div class="sidebar-brand-name">DoaStock</div>
+            <div class="sidebar-brand-sub">v1.0 MVP</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Principal</div>
+
+        <button class="nav-item active" data-view="dashboard">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+          </svg>
+          Dashboard
+        </button>
+
+        <button class="nav-item" data-view="inventory">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path
+              d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+          </svg>
+          Estoque
+        </button>
+
+        <button class="nav-item" data-view="entry">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Entrada de Itens
+        </button>
+
+        <button class="nav-item" data-view="alerts" id="nav-alerts">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 01-3.46 0" />
+          </svg>
+          Alertas de Validade
+          <span class="nav-badge" id="alerts-badge" style="display:none">0</span>
+        </button>
+
+        <div class="sidebar-section-label" style="margin-top:8px">Gestão</div>
+
+        <button class="nav-item" data-view="movements">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="17 1 21 5 17 9" />
+            <path d="M3 11V9a4 4 0 014-4h14" />
+            <polyline points="7 23 3 19 7 15" />
+            <path d="M21 13v2a4 4 0 01-4 4H3" />
+          </svg>
+          Movimentações
+        </button>
+
+        <button class="nav-item" data-view="reports">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+            <polyline points="10 9 9 9 8 9" />
+          </svg>
+          Relatórios
+        </button>
+
+        <button class="nav-item" data-view="needs">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          Módulo Necessidades
+        </button>
+
+        <div class="sidebar-section-label" style="margin-top:8px" id="admin-section">Admin</div>
+
+        <button class="nav-item" data-view="users" id="nav-users">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 00-3-3.87" />
+            <path d="M16 3.13a4 4 0 010 7.75" />
+          </svg>
+          Usuários
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info" id="sidebar-user-info">
+          <div class="user-avatar" id="sidebar-avatar">--</div>
+          <div class="user-details">
+            <div class="user-name" id="sidebar-user-name">Carregando...</div>
+            <div class="user-role" id="sidebar-user-role">—</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm btn-full mt-4" id="btn-logout"
+          style="color:rgba(163,201,174,0.7);justify-content:flex-start;gap:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Sair
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+      <!-- ── DASHBOARD ─────────────────────────────── -->
+      <div id="view-dashboard" class="view active">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div>
+              <h1 class="page-title">Dashboard</h1>
+              <p class="page-subtitle" id="dash-org-subtitle">Visão consolidada do estoque</p>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-secondary btn-sm" id="btn-refresh-dash">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="1 4 1 10 7 10" />
+                  <path d="M3.51 15a9 9 0 101.57-4.37L1 10" />
+                </svg>
+                Atualizar
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="page-content">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Total em Estoque</span>
+                <div class="stat-icon green">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                      d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="stat-total">—</div>
+              <div class="stat-trend">Total de lotes ativos</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Vencendo em 7 dias</span>
+                <div class="stat-icon red">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="stat-expiring">—</div>
+              <div class="stat-trend down">Requer ação imediata</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Itens Críticos</span>
+                <div class="stat-icon yellow">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="stat-critical">—</div>
+              <div class="stat-trend">Abaixo do mínimo</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Movimentações Hoje</span>
+                <div class="stat-icon blue">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="stat-movements">—</div>
+              <div class="stat-trend up">Entradas + saídas</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Estoque por Categoria</div>
+                  <div class="card-desc">Semáforo de criticidade</div>
+                </div>
+              </div>
+              <div class="card-body" id="dash-category-list">
+                <div class="empty-state" style="padding:32px">
+                  <p>Carregando categorias...</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Alertas Pendentes</div>
+                  <div class="card-desc">Próximos vencimentos</div>
+                </div>
+              </div>
+              <div class="card-body" id="dash-alerts-list">
+                <div class="empty-state" style="padding:32px">
+                  <p>Carregando alertas...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ESTOQUE ─────────────────────────────── -->
+      <div id="view-inventory" class="view">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div>
+              <h1 class="page-title">Estoque</h1>
+              <p class="page-subtitle">Todos os itens e lotes ativos</p>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btn-new-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Novo Item
+            </button>
+          </div>
+        </div>
+        <div class="page-content">
+          <div class="filter-bar">
+            <div class="search-input-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input type="text" class="form-input search-input" id="inventory-search"
+                placeholder="Buscar por nome ou código..." />
+            </div>
+            <select class="form-select" id="inventory-filter-category" style="width:auto">
+              <option value="">Todas as categorias</option>
+              <option value="alimentos">Alimentos</option>
+              <option value="higiene">Higiene</option>
+              <option value="limpeza">Limpeza</option>
+              <option value="vestuario">Vestuário</option>
+              <option value="outros">Outros</option>
+            </select>
+            <select class="form-select" id="inventory-filter-status" style="width:auto">
+              <option value="">Todos os status</option>
+              <option value="ok">✅ OK</option>
+              <option value="warning">⚠️ Atenção</option>
+              <option value="critical">🔴 Crítico</option>
+            </select>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Categoria</th>
+                  <th>Quantidade</th>
+                  <th>Próx. Vencimento</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-table-body">
+                <tr>
+                  <td colspan="6">
+                    <div class="empty-state" style="padding:40px">
+                      <p>Carregando estoque...</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ENTRADA DE ITENS ──────────────────────── -->
+      <div id="view-entry" class="view">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div>
+              <h1 class="page-title">Entrada de Itens</h1>
+              <p class="page-subtitle">Registre novos lotes via código de barras ou manualmente</p>
+            </div>
+          </div>
+        </div>
+        <div class="page-content">
+          <div class="grid-2" style="align-items:start">
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Leitor de Código de Barras</div>
+                  <div class="card-desc">EAN-13 / QR Code pela câmera</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="scanner-area" id="scanner-area">
+                  <video id="scanner-video" autoplay muted playsinline></video>
+                  <div class="scanner-overlay" id="scanner-overlay" style="display:none">
+                    <div class="scanner-frame">
+                      <div class="scanner-line"></div>
+                      <div class="scanner-corner tl"></div>
+                      <div class="scanner-corner tr"></div>
+                      <div class="scanner-corner bl"></div>
+                      <div class="scanner-corner br"></div>
+                    </div>
+                  </div>
+                  <div id="scanner-placeholder"
+                    style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:12px;color:rgba(255,255,255,0.6);padding:32px">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="1.5">
+                      <rect x="3" y="4" width="3" height="16" />
+                      <rect x="7" y="4" width="1" height="16" />
+                      <rect x="9" y="4" width="2" height="16" />
+                      <rect x="13" y="4" width="1" height="16" />
+                      <rect x="16" y="4" width="3" height="16" />
+                      <rect x="20" y="4" width="1" height="16" />
+                    </svg>
+                    <p style="font-size:12px;text-align:center">Clique para ativar a câmera e escanear</p>
+                  </div>
+                </div>
+                <div class="flex gap-2 mt-4">
+                  <button class="btn btn-primary btn-sm" id="btn-start-scan">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    Iniciar Câmera
+                  </button>
+                  <button class="btn btn-secondary btn-sm hidden" id="btn-stop-scan">Parar</button>
+                </div>
+                <div id="scan-result" class="alert alert-success hidden mt-4">
+                  <div class="alert-icon">✓</div>
+                  <div>
+                    <div class="alert-title">Código detectado</div>
+                    <div class="alert-desc" id="scan-result-code"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Dados do Lote</div>
+                  <div class="card-desc">Confirme ou preencha manualmente</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label class="form-label">Código de Barras</label>
+                  <input type="text" class="form-input font-mono" id="entry-barcode" placeholder="EAN-13 ou QR Code" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Nome do Produto *</label>
+                  <input type="text" class="form-input" id="entry-name" placeholder="Ex: Arroz Tipo 1 Tio João 5kg" />
+                </div>
+                <div class="form-row form-row-2">
+                  <div class="form-group">
+                    <label class="form-label">Categoria *</label>
+                    <select class="form-select" id="entry-category">
+                      <option value="">Selecionar...</option>
+                      <option value="alimentos">Alimentos</option>
+                      <option value="higiene">Higiene</option>
+                      <option value="limpeza">Limpeza</option>
+                      <option value="vestuario">Vestuário</option>
+                      <option value="outros">Outros</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Unidade</label>
+                    <select class="form-select" id="entry-unit">
+                      <option value="un">Unidade (un)</option>
+                      <option value="kg">Quilograma (kg)</option>
+                      <option value="g">Grama (g)</option>
+                      <option value="l">Litro (L)</option>
+                      <option value="ml">Mililitro (ml)</option>
+                      <option value="cx">Caixa (cx)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row form-row-2">
+                  <div class="form-group">
+                    <label class="form-label">Quantidade *</label>
+                    <input type="number" class="form-input" id="entry-quantity" min="1" placeholder="0" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Data de Validade *</label>
+                    <input type="date" class="form-input" id="entry-expiry" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Doador (opcional)</label>
+                  <input type="text" class="form-input" id="entry-donor" placeholder="Nome do doador ou empresa" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Observações</label>
+                  <textarea class="form-textarea" id="entry-notes" placeholder="Condição do lote, observações..."
+                    style="min-height:60px"></textarea>
+                </div>
+                <button class="btn btn-primary btn-full" id="btn-register-entry">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Registrar Entrada
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ALERTAS DE VALIDADE ──────────────────── -->
+      <div id="view-alerts" class="view">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div>
+              <h1 class="page-title">Alertas de Validade</h1>
+              <p class="page-subtitle">Lotes próximos ao vencimento</p>
+            </div>
+            <div class="flex gap-2">
+              <select class="form-select" id="alert-days-filter" style="width:auto">
+                <option value="7">Próximos 7 dias</option>
+                <option value="15" selected>Próximos 15 dias</option>
+                <option value="30">Próximos 30 dias</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="page-content">
+          <div class="tabs">
+            <div class="tab-list">
+              <button class="tab-trigger active" data-tab="critical-tab">🔴 Crítico (≤7 dias)</button>
+              <button class="tab-trigger" data-tab="warning-tab">⚠️ Atenção (≤15 dias)</button>
+              <button class="tab-trigger" data-tab="notice-tab">📋 Aviso (≤30 dias)</button>
+            </div>
+          </div>
+          <div id="critical-tab" class="tab-panel active">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Produto</th>
+                    <th>Lote</th>
+                    <th>Quantidade</th>
+                    <th>Vencimento</th>
+                    <th>Dias Restantes</th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="critical-alerts-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="warning-tab" class="tab-panel">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Produto</th>
+                    <th>Lote</th>
+                    <th>Quantidade</th>
+                    <th>Vencimento</th>
+                    <th>Dias Restantes</th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="warning-alerts-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="notice-tab" class="tab-panel">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Produto</th>
+                    <th>Lote</th>
+                    <th>Quantidade</th>
+                    <th>Vencimento</th>
+                    <th>Dias Restantes</th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="notice-alerts-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MOVIMENTAÇÕES ────────────────────────── -->
+      <div id="view-movements" class="view">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div>
+              <h1 class="page-title">Movimentações</h1>
+              <p class="page-subtitle">Histórico de entradas e saídas</p>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btn-new-exit">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14" />
+                <path d="M12 5l7 7-7 7" />
+              </svg>
+              Registrar Saída
+            </button>
+          </div>
+        </div>
+        <div class="page-content">
+          <div class="filter-bar">
+            <div class="search-input-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input type="text" class="form-input search-input" id="mov-search" placeholder="Buscar movimentação..." />
+            </div>
+            <select class="form-select" id="mov-type-filter" style="width:auto">
+              <option value="">Todos</option>
+              <option value="entrada">Entradas</option>
+              <option value="saida">Saídas</option>
+            </select>
+            <input type="date" class="form-input" id="mov-date-filter" style="width:auto" />
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Tipo</th>
+                  <th>Produto</th>
+                  <th>Quantidade</th>
+                  <th>Responsável</th>
+                  <th>Observação</th>
+                </tr>
+              </thead>
+              <tbody id="movements-table-body">
+                <tr>
+                  <td colspan="6">
+                    <div class="empty-state" style="padding:40px">
+                      <p>Carregando movimentações...</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── RELATÓRIOS ────────────────────────────── -->
+      <div id="view-reports" class="view">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div>
+              <h1 class="page-title">Relatórios de Impacto</h1>
+              <p class="page-subtitle">Métricas e prestação de contas</p>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btn-export-pdf">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Exportar PDF
+            </button>
+          </div>
+        </div>
+        <div class="page-content">
+          <div class="flex gap-3 mb-6">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Período inicial</label>
+              <input type="date" class="form-input" id="report-start" />
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Período final</label>
+              <input type="date" class="form-input" id="report-end" />
+            </div>
+            <div style="display:flex;align-items:flex-end">
+              <button class="btn btn-secondary btn-sm" id="btn-generate-report">Gerar Relatório</button>
+            </div>
+          </div>
+
+          <div id="report-content">
+            <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+              <div class="stat-card">
+                <div class="stat-header">
+                  <span class="stat-label">Volume Recebido</span>
+                  <div class="stat-icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2">
+                      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                      <polyline points="17 6 23 6 23 12" />
+                    </svg></div>
+                </div>
+                <div class="stat-value" id="report-received">—</div>
+                <div class="stat-trend">itens recebidos</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-header">
+                  <span class="stat-label">Volume Distribuído</span>
+                  <div class="stat-icon blue"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2">
+                      <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                      <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg></div>
+                </div>
+                <div class="stat-value" id="report-distributed">—</div>
+                <div class="stat-trend">itens distribuídos</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-header">
+                  <span class="stat-label">Famílias Beneficiadas</span>
+                  <div class="stat-icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2">
+                      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                      <path d="M16 3.13a4 4 0 010 7.75" />
+                    </svg></div>
+                </div>
+                <div class="stat-value" id="report-families">—</div>
+                <div class="stat-trend">estimativa</div>
+              </div>
+            </div>
+
+            <div class="grid-2 mt-4">
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">Distribuição por Categoria</div>
+                </div>
+                <div class="card-body" id="report-by-category">
+                  <div class="empty-state" style="padding:32px">
+                    <p>Selecione o período e gere o relatório</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">Itens Desperdiçados</div>
+                  <div class="card-desc">Expirados sem distribuição</div>
+                </div>
+                <div class="card-body" id="report-wasted">
+                  <div class="empty-state" style="padding:32px">
+                    <p>Selecione o período e gere o relatório</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MÓDULO NECESSIDADES (Admin) ───────────── -->
+      <div id="view-needs" class="view">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div>
+              <h1 class="page-title">Módulo de Necessidades</h1>
+              <p class="page-subtitle">Gerencie os alertas públicos para doadores</p>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-secondary btn-sm" id="btn-copy-public-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                </svg>
+                Copiar Link Público
+              </button>
+              <button class="btn btn-primary btn-sm" id="btn-new-need">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Novo Alerta
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="page-content">
+          <div class="alert alert-info mb-4">
+            <div class="alert-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            </div>
+            <div>
+              <div class="alert-title">Link público ativo</div>
+              <div class="alert-desc">O módulo de necessidades é acessível sem login. Compartilhe em redes sociais para
+                orientar doadores.</div>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Quantidade Mínima</th>
+                  <th>Mensagem</th>
+                  <th>Status</th>
+                  <th>Criado em</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="needs-table-body">
+                <tr>
+                  <td colspan="6">
+                    <div class="empty-state" style="padding:40px">
+                      <p>Carregando...</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── USUÁRIOS ────────────────────────────── -->
+      <div id="view-users" class="view">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div>
+              <h1 class="page-title">Usuários</h1>
+              <p class="page-subtitle">Gestão de coordenadores e voluntários</p>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btn-new-user">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Novo Usuário
+            </button>
+          </div>
+        </div>
+        <div class="page-content">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>E-mail</th>
+                  <th>Perfil</th>
+                  <th>Criado em</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body">
+                <tr>
+                  <td colspan="5">
+                    <div class="empty-state" style="padding:40px">
+                      <p>Carregando usuários...</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+     MODAIS
+════════════════════════════════════════════ -->
+
+  <!-- Modal: Novo Item no Estoque -->
+  <div id="modal-new-item" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Cadastrar Item</div>
+          <div class="modal-desc">Adicione um novo item ao catálogo de estoque</div>
+        </div>
+        <button class="modal-close" data-close="modal-new-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Nome do Item *</label>
+          <input type="text" class="form-input" id="modal-item-name" />
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">Categoria *</label>
+            <select class="form-select" id="modal-item-category">
+              <option value="alimentos">Alimentos</option>
+              <option value="higiene">Higiene</option>
+              <option value="limpeza">Limpeza</option>
+              <option value="vestuario">Vestuário</option>
+              <option value="outros">Outros</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unidade de Medida</label>
+            <select class="form-select" id="modal-item-unit">
+              <option value="un">Unidade</option>
+              <option value="kg">Kg</option>
+              <option value="g">Grama</option>
+              <option value="l">Litro</option>
+              <option value="ml">ml</option>
+              <option value="cx">Caixa</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Código de Barras (opcional)</label>
+          <input type="text" class="form-input font-mono" id="modal-item-barcode" placeholder="EAN-13" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close="modal-new-item">Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-item">Salvar Item</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Registrar Saída -->
+  <div id="modal-new-exit" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Registrar Saída</div>
+          <div class="modal-desc">Registre a distribuição de itens do estoque</div>
+        </div>
+        <button class="modal-close" data-close="modal-new-exit">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Item *</label>
+          <select class="form-select" id="exit-item-select"></select>
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">Quantidade *</label>
+            <input type="number" class="form-input" id="exit-quantity" min="1" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Destinatário</label>
+            <input type="text" class="form-input" id="exit-recipient" placeholder="Nome ou família" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Observação</label>
+          <textarea class="form-textarea" id="exit-notes"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close="modal-new-exit">Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-exit">Confirmar Saída</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Novo Usuário -->
+  <div id="modal-new-user" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Novo Usuário</div>
+          <div class="modal-desc">Adicione um coordenador ou voluntário</div>
+        </div>
+        <button class="modal-close" data-close="modal-new-user">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Nome completo *</label>
+          <input type="text" class="form-input" id="modal-user-name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-mail *</label>
+          <input type="email" class="form-input" id="modal-user-email" />
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">Perfil *</label>
+            <select class="form-select" id="modal-user-role">
+              <option value="volunteer">Voluntário</option>
+              <option value="coordinator">Coordenador</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Senha temporária *</label>
+            <input type="password" class="form-input" id="modal-user-password" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close="modal-new-user">Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-user">Criar Usuário</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Novo Alerta de Necessidade -->
+  <div id="modal-new-need" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Novo Alerta de Necessidade</div>
+          <div class="modal-desc">Será exibido no módulo público para doadores</div>
+        </div>
+        <button class="modal-close" data-close="modal-new-need">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Item *</label>
+          <select class="form-select" id="need-item-select"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Quantidade mínima necessária *</label>
+          <input type="number" class="form-input" id="need-min-qty" min="1" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mensagem ao doador</label>
+          <textarea class="form-textarea" id="need-message"
+            placeholder="Ex: Urgente! Nosso estoque está crítico desta semana..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close="modal-new-need">Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-need">Publicar Alerta</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
