@@ -3,6 +3,14 @@ Sistema de Gestão de Inventário e Doações para Organizações Sociais
 
 <img width="1402" height="768" alt="Mockup Doa Stock" src="https://github.com/user-attachments/assets/f1bb9200-fdbf-444a-b9af-ab895a650b54" />
 <br>
+<br>
+
+**🎥 Vídeo de Demonstração**
+Confira as principais funcionalidades do sistema em ação. No vídeo, mostramos desde a entrada de itens com o leitor de código de barras até a visão do doador no módulo público:
+
+[📺 Assistir à demonstração completa no YouTube](https://www.youtube.com/watch?v=4-OdsKbUs_g)
+
+<br>
    
  Progressive Web App (PWA) · FastAPI (Serverless) · Supabase · PostgreSQL  
 **Divisão de Responsabilidades**  
@@ -57,8 +65,8 @@ doastock/
 Após correr o script supabase.sql na base de dados, utilize as seguintes credenciais para aceder ao sistema:  
 
 | **Campo** | **Valor** |   
-| **E-mail** | coordenador@doastock.org |   
-| **Password** | doastock123 |   
+| **E-mail** | vini@gmail.com |   
+| **Password** | Vini1234 |   
    
 **Licença**  
 Projeto académico — SENAC · Tecnologia em Análise e Desenvolvimento de Sistemas · 2026  
