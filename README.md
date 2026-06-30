@@ -1,4 +1,5 @@
 **DoaStock**  
+
 Sistema de Gestão de Inventário e Doações para Organizações Sociais  
 
 <img width="1402" height="768" alt="Mockup Doa Stock" src="https://github.com/user-attachments/assets/f1bb9200-fdbf-444a-b9af-ab895a650b54" />
@@ -12,7 +13,8 @@ Confira as principais funcionalidades do sistema em ação. No vídeo, mostramos
 
 <br>
    
- Progressive Web App (PWA) · FastAPI (Serverless) · Supabase · PostgreSQL  
+Progressive Web App (PWA) · FastAPI (Serverless) · Supabase · PostgreSQL  
+<br>
 **Divisão de Responsabilidades**  
 | | | |  
 |-|-|-|  
@@ -20,7 +22,7 @@ Confira as principais funcionalidades do sistema em ação. No vídeo, mostramos
 | **Dupla 1 – Interface & Design** | Lucas Silva Pessoa · Thaina Oliveira Araújo | index.html · style.css |   
 | **Dupla 2 – Lógica Frontend** | Guilherme Gomes da Silva · Daniel Michel Vieira Lopes | script.js |   
 | **Dupla 3 – Backend & Dados** | Leandra dos Santos Caetano Garcia · Pedro Henrique Tavares Maciel de Souza | api/index.py · vercel.json · supabase.sql |   
-   
+
 **Stack Tecnológica (Arquitetura Serverless)**  
 | | |  
 |-|-|  
@@ -39,7 +41,9 @@ Confira as principais funcionalidades do sistema em ação. No vídeo, mostramos
 - **Módulo Público de Necessidades** sem login — para os doadores verificarem os itens urgentes.  
 - **Relatórios de Impacto** com métricas de receção e distribuição de donativos.  
 - **Gestão de Utilizadores** com perfis coordinator / volunteer / donor.  
-**Estrutura de Ficheiros**  
+**Estrutura de Ficheiros**
+
+  <br>
 A arquitetura foi otimizada para implantação direta e gratuita no Vercel:  
 doastock/  
  ├── api/  
@@ -60,13 +64,18 @@ doastock/
 - SUPABASE_URL: O URL do seu projeto Supabase.  
 - SUPABASE_SERVICE_KEY: A chave secreta service_role do Supabase.  
 - JWT_SECRET: Uma chave secreta longa gerada por si.  
-- SENDGRID_API_KEY: (Opcional) Chave para disparo de e-mails.  
+- SENDGRID_API_KEY: (Opcional) Chave para disparo de e-mails.
+
 **Credenciais de Demonstração**  
 Após correr o script supabase.sql na base de dados, utilize as seguintes credenciais para aceder ao sistema:  
 
+| | |  
+|-|-| 
 | **Campo** | **Valor** |   
 | **E-mail** | vini@gmail.com |   
 | **Password** | Vini1234 |   
-   
+<br>
+
 **Licença**  
+
 Projeto académico — SENAC · Tecnologia em Análise e Desenvolvimento de Sistemas · 2026  
